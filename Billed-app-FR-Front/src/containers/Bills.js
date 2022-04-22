@@ -35,7 +35,6 @@ export default class {
         .then(snapshot => {
           const bills = snapshot
             .map(doc => {
-              console.log(doc.date)  ///// date au format initial 2021-11-22
               try {
                 return {
                   ...doc,
@@ -55,7 +54,7 @@ export default class {
               }
             })
           console.log('length', bills.length, bills)
-          bills.sort((a, b) => b.dateForCompare - a.dateForCompare) //// A corriger mais action sur l'ordre ok
+          bills.sort((a, b) => b.dateForCompare - a.dateForCompare)
           return bills
         })
     }

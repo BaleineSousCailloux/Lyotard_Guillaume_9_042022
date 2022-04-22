@@ -33,7 +33,6 @@ export default () => {
       const bills = new Bills({ document, onNavigate, store, localStorage })
       console.log(bills.getBills)
       bills.getBills().then(data => {
-        console.log(data[0].date) ///////////////////////// date formatée 22 Nov. 21
         rootDiv.innerHTML = BillsUI({ data })
         const divIcon1 = document.getElementById('layout-icon1')
         const divIcon2 = document.getElementById('layout-icon2')
