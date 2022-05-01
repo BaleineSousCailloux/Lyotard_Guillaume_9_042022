@@ -17,14 +17,21 @@ const row = (bill) => {
       </td>
     </tr>
     `)
-  }
+}
 
 const rows = (data) => {
-  return (data && data.length) ? data.map(bill => row(bill)).join("") : ""
+  // Modifications pour trier les factures et pour trier le fichier de test
+  let returnValue = ""
+  if (data && data.length) {
+    data.sort((a, b) => (((a.dateForCompare || a.date) < (b.dateForCompare || b.date)) ? 1 : -1))
+    returnValue = data.map(bill => row(bill)).join("")
+  }
+
+  return returnValue
 }
 
 export default ({ data: bills, loading, error }) => {
-  
+
   const modal = () => (`
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
@@ -47,7 +54,7 @@ export default ({ data: bills, loading, error }) => {
   } else if (error) {
     return ErrorPage(error)
   }
-  
+
   return (`
     <div class='layout'>
       ${VerticalLayout(120)}

@@ -31,7 +31,6 @@ export default () => {
       divIcon1.classList.add('active-icon')
       divIcon2.classList.remove('active-icon')
       const bills = new Bills({ document, onNavigate, store, localStorage })
-      console.log(bills.getBills)
       bills.getBills().then(data => {
         rootDiv.innerHTML = BillsUI({ data })
         const divIcon1 = document.getElementById('layout-icon1')

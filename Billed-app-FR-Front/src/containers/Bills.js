@@ -53,8 +53,7 @@ export default class {
                 }
               }
             })
-          console.log('length', bills.length, bills)
-          bills.sort((a, b) => b.dateForCompare - a.dateForCompare)
+          //bills.sort((a, b) => b.dateForCompare - a.dateForCompare)
           return bills
         })
     }
