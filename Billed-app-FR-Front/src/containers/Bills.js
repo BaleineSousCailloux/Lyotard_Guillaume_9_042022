@@ -53,7 +53,6 @@ export default class {
                 }
               }
             })
-          //bills.sort((a, b) => b.dateForCompare - a.dateForCompare)
           return bills
         })
     }
