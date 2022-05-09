@@ -1,94 +1,47 @@
-import {
-    screen,
-    getByTestId,
-    getAllByTestId,
-    getByText,
-} from "@testing-library/dom";
+/**
+ * @jest-environment jsdom
+ */
+
 import "@testing-library/jest-dom";
-import userEvent from "@testing-library/user-event";
-import { setSessionStorage } from "../../setup-jest";
+import { fireEvent, screen, getByTestId, getAllByTestId, getByText, waitFor } from "@testing-library/dom"
 
-import Firestore from "../app/Firestore";
-import firebase from "../__mocks__/firebase";
+import userEvent from "@testing-library/user-event"
+import { ROUTES, ROUTES_PATH } from "../constants/routes"
+import Bills from "../containers/Bills"
+import BillsUI from "../views/BillsUI.js"
+import { bills } from "../fixtures/bills.js"
+import { localStorageMock } from "../__mocks__/localStorage.js"
+import router from "../app/Router.js"
+import mockStore from "../__mocks__/store"
 
-import Router from "../app/Router.js";
-import { bills } from "../fixtures/bills.js";
-import { ROUTES, ROUTES_PATH } from "../constants/routes";
-import Bills from "../containers/Bills";
-import BillsUI from "../views/BillsUI.js";
-
-
-
-
-// Define Session - Employee
-setSessionStorage("Employee");
-
-// Init onNavigate
-const onNavigate = (pathname) => {
-    document.body.innerHTML = ROUTES({ pathname });
-};
-
-//Call BiilsUI to construct page with data mocked
-const constructBillsUi = () => {
-    const html = BillsUI({ data: bills });
-    document.body.innerHTML = html;
-};
+//jest.mock("../app/store", () => mockStore)
 
 describe("Given I am connected as an employee", () => {
     describe("When I am on Bills Page", () => {
-        /**
-         * Dans ce premier test on souhaite verifier la présence
-         * d'une classe sur un élemément HTML
-         *
-         * - Definie la Route
-         * - Mock les données
-         * - On ce positionne sur la page [bills]
-         * - Inject Dom
-         * - Get Element
-         * - If Element exist [ except(el).assert() ]
-         * - If class "active-icon" [ except(el).assert() ]
-         *
-         **/
+        test("Then bill icon in vertical layout should be highlighted", async () => {
 
-        test("Then bill icon in vertical layout should be highlighted", () => {
-            // Routing variable
-            const pathname = ROUTES_PATH["Bills"];
-            //We recover a copy of the mocked data
-            jest.mock("../app/Firestore");
-            Firestore.bills = () => ({ bills, get: jest.fn().mockResolvedValue() });
+            Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+            window.localStorage.setItem('user', JSON.stringify({
+                type: 'Employee'
+            }))
+            const root = document.createElement("div")
+            root.setAttribute("id", "root")
+            document.body.append(root)
+            router()
+            window.onNavigate(ROUTES_PATH.Bills)
+            await waitFor(() => screen.getByTestId('icon-window'))
+            const windowIcon = screen.getByTestId('icon-window')
+            expect(windowIcon).toHaveClass('active-icon')
 
-            // Define pathname : #employee/bills
-            location.assign(pathname);
-
-            // Create Dom HTML
-            document.body.innerHTML = `<div id="root"></div>`;
-            // Trigger the router to set up the page
-            Router();
-            //Get icon element
-            const icon = getByTestId(document.body, "icon-window");
-            //Check if exist
-            expect(icon).toBeTruthy();
-            //Check class value
-            expect(icon).toHaveClass("active-icon");
-        });
+        })
         test("Then bills should be ordered from earliest to latest", () => {
-            /**
-             * [Bug fix] les notes de frais ne s'affichait pas dans le bonne ordre
-             */
-
-            const html = BillsUI({ data: bills });
-            document.body.innerHTML = html;
-            const dates = screen
-                .getAllByText(
-                    /^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i
-                )
-                .map((a) => a.innerHTML);
-
-            const antiChrono = (a, b) => (a < b ? 1 : -1);
-            const datesSorted = [...dates].sort(antiChrono);
-            expect(dates).toEqual(datesSorted);
-        });
-    });
+            document.body.innerHTML = BillsUI({ data: bills })
+            const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML)
+            const antiChrono = (a, b) => ((a < b) ? 1 : -1)
+            const datesSorted = bills.map(d => d.date).sort(antiChrono)
+            expect(dates).toEqual(datesSorted)
+        })
+    })
 
     describe("When I click on the button 'Nouvelle note de frais'", () => {
         //Data-testid = btn-new-bill
@@ -105,18 +58,22 @@ describe("Given I am connected as an employee", () => {
              * est affiché.
              **/
 
-            // UI Construction
-            constructBillsUi();
 
-            const bills = new Bills({
-                document,
-                onNavigate,
-                Firestore,
-                localStorage: window.localStorage,
-            });
+            const onNavigate = (pathname) => {
+                document.body.innerHTML = ROUTES({ pathname })
+            }
+
+            Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+            window.localStorage.setItem('user', JSON.stringify({
+                type: 'Employee'
+            }))
+            const billsPage = new Bills({
+                document, onNavigate, store: null, bills: bills, localStorage: window.localStorage
+            })
+            //document.body.innerHTML = BillsUi({ data: { bills } })
 
             // Mock handleClickNewBill function on bills, line : 23
-            const handleClickNewBill = jest.fn(bills.handleClickNewBill);
+            const handleClickNewBill = jest.fn(billsPage.handleClickNewBill);
 
             // Get new bill button in DOM
             const btnNewBill = getByTestId(document.body, "btn-new-bill");
@@ -148,27 +105,30 @@ describe("Given I am connected as an employee", () => {
              * - On verifie que la fonction est bien apellé
              * - On verifie que la modal est presente
              */
-            constructBillsUi();
-            // Init firestore
-            const firestore = null;
+            const onNavigate = (pathname) => {
+                document.body.innerHTML = ROUTES({ pathname })
+            }
 
-            // init Bills Class constructor for icon eye display
-            const bills = new Bills({
-                document,
-                onNavigate,
-                firestore,
-                localStorage: window.localStorage,
-            });
-
+            Object.defineProperty(window, 'localStorage', { value: localStorageMock })
+            window.localStorage.setItem('user', JSON.stringify({
+                type: 'Employee'
+            }))
+            const billsPage = new Bills({
+                document, onNavigate, store: null, bills: bills, localStorage: window.localStorage
+            })
+            document.body.innerHTML = BillsUI({ data: { bills } })
+            //const showBills = jest.fn(billsPage.getBills(bills))
+            //console.log(showBills)
             // Mock modal
             $.fn.modal = jest.fn();
 
             // Get the first button eye in DOM for test
-            const firstEyeIcon = getAllByTestId(document.body, "icon-eye")[0];
+            //await waitFor(() => screen.getAllByTestId("btn-new-bill"))
+            const firstEyeIcon = getAllByTestId(document.body, "btn-new-bill")[0];
 
             //Mock handleClickIconEye function on bills , line : 27
             const handleClickIconEye = jest.fn(
-                bills.handleClickIconEye(firstEyeIcon)
+                billsPage.handleClickIconEye(firstEyeIcon)
             );
 
             //Attached events and trigged
@@ -176,7 +136,11 @@ describe("Given I am connected as an employee", () => {
             //trigger event click
             userEvent.click(firstEyeIcon);
 
-            const modal = document.getElementById("modaleFile");
+            // Mock modal
+            $.fn.modal = jest.fn();
+
+            //await waitFor(() => screen.getByTestId("modale"))
+            const modal = screen.getByTestId("modale");
             expect(handleClickIconEye).toHaveBeenCalled();
             //Check if modal has show in DOM
             expect(modal).toBeTruthy();
@@ -224,4 +188,21 @@ describe("Given I am connected as an employee", () => {
             expect(errorMessage).toBeTruthy();
         });
     });
-});
+})
+
+
+
+/*/ Define Session - Employee
+setSessionStorage("Employee");
+
+// Init onNavigate
+const onNavigate = (pathname) => {
+    document.body.innerHTML = ROUTES({ pathname });
+};
+
+//Call BiilsUI to construct page with data mocked
+const constructBillsUi = () => {
+    const html = BillsUI({ data: bills });
+    document.body.innerHTML = html;
+};
+*/
