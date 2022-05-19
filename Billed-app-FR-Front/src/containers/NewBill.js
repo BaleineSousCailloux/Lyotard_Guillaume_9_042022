@@ -21,8 +21,10 @@ export default class NewBill {
     // formats authorisés et comparaison avec le format du fichier sélectionné
     const authorizFormats = ['image/jpeg', 'image/jpg', 'image/png']
     const controlFormat = authorizFormats.includes(file.type)
+    const messageError = this.document.querySelector('p[data-testid="message"')
     if (controlFormat) {
       // si le fichier est conforme
+      messageError.classList.add("hidden")
       const filePath = e.target.value.split(/\\/g)
       const fileName = filePath[filePath.length - 1]
       const formData = new FormData()
@@ -46,7 +48,8 @@ export default class NewBill {
         .catch(error => console.error(error))
     } else {
       // si le fichier ne possède pas une extention authorisée
-      alert("Le fichier image doit être de type jpg, jpeg ou png")
+      messageError.classList.remove("hidden")
+      //alert("Le fichier image doit être de type jpg, jpeg ou png")
       e.target.value = ""
     }
 
