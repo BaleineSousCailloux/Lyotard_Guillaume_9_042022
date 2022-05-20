@@ -49,7 +49,6 @@ export default class NewBill {
     } else {
       // si le fichier ne possède pas une extention authorisée
       messageError.classList.remove("hidden")
-      //alert("Le fichier image doit être de type jpg, jpeg ou png")
       e.target.value = ""
     }
 
