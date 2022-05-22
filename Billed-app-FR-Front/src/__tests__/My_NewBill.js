@@ -9,7 +9,7 @@ import userEvent from "@testing-library/user-event"
 import mockStore from "../__mocks__/store.js"
 import { setSessionStorage } from "../../setup-jest"
 import Store from "../app/Store.js"
-import BillsUI from "../views/BillsUI.js"
+//import BillsUI from "../views/BillsUI.js"
 import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js"
@@ -18,6 +18,8 @@ import { bills } from "../fixtures/bills.js"
 import router from "../app/Router.js"
 
 //jest.mock("../app/Store", () => mockStore)
+// Session storage - Employee
+//setSessionStorage("Employee");
 
 
 describe("Given I am connected as an employee", () => {
@@ -46,9 +48,9 @@ describe("Given I am connected as an employee", () => {
                     window.localStorage.setItem('user', JSON.stringify({
                         type: 'Employee'
                     }))
-                    document.body.innerHTML = NewBillUI()
+                    //document.body.innerHTML = NewBillUI()
                     const newBill = new NewBill({
-                        document, onNavigate, store: null, localStorage: window.localStorage
+                        document, onNavigate, store: mockStore, localStorage: localStorageMock
                     })
                     const handleChangeFile = jest.fn(newBill.handleChangeFile)
                     const inputFile = screen.getByTestId("file")
@@ -80,12 +82,13 @@ describe("Given I am connected as an employee", () => {
                     window.localStorage.setItem('user', JSON.stringify({
                         type: 'Employee'
                     }))
-                    document.body.innerHTML = NewBillUI()
+                    //document.body.innerHTML = NewBillUI()
                     const newBill = new NewBill({
-                        document, onNavigate, store: null, localStorage: window.localStorage
+                        document, onNavigate, store: mockStore, localeStorage: localStorageMock
                     })
                     const handleChangeFile = jest.fn(newBill.handleChangeFile)
                     const inputFile = screen.getByTestId("file")
+                    //inputFile.value = ""
                     inputFile.addEventListener("change", handleChangeFile)
                     fireEvent.change(inputFile, {
                         target: {
@@ -98,42 +101,18 @@ describe("Given I am connected as an employee", () => {
                     })
                     expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
                     expect(handleChangeFile).toBeCalled()
-                    //await waitFor(() => getByTestId(document.body, "message"))
+                    await waitFor(() => getByTestId(document.body, "message"))
+                    expect(getByTestId(document.body, "message").classList).toContain("hidden")
+                    //await waitFor(() => screen.getByText("image.png"))
+                    //expect(screen.getByText("image.png")).toBeTruthy()
+                    //expect(inputFile.files[0].name).toBe("image.png")
                     //const message = getByTestId(document.body, "message")
                     //expect(inputFile.files[0].name).toBe("image.png")
-                    //console.log(message)
+                    //console.log(message.classList)
 
-                    //expect(screen.getByText("Ce format de fichier n'est pas accepté")).toBeTruthy()
-                    //expect(screen.getByTestId("message").classList).toContain("hidden")
+                    //expect(screen.getByText("Ce format de fichier n'est pas accepté")).not.toBeTruthy()
                 })
-                //         const onNavigate = (pathname) => {
-                //             document.body.innerHTML = ROUTES({ pathname })
-                //         }
 
-                //         const newBill = new NewBill({
-                //             document, onNavigate, Store, localStorage: window.localStorage
-                //         })
-                //         const handleChangeFile = jest.fn(newBill.handleChangeFile)
-
-                //         const inputFile = screen.getByTestId("file")
-                //         inputFile.addEventListener("change", handleChangeFile)
-                //         fireEvent.change(inputFile, {
-                //             target: {
-                //                 files: [
-                //                     new File(["image.png"], "image.png", {
-                //                         type: "image/png"
-                //                     })
-                //                 ]
-                //             }
-                //         })
-                //         expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
-                //         expect(handleChangeFile).toBeCalled()
-                //         await waitFor(() => screen.getByText("image.png"))
-                //         expect(screen.getByText("image")).toBeTruthy()
-                //         expect(inputFile.files[0].name).toBe("image.png")
-
-                //         //expect(screen.getByText("Ce format de fichier n'est pas accepté")).not.toBeTruthy()
-                //     })
             })
 
         })
