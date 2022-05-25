@@ -78,6 +78,7 @@ export default class NewBill {
   // not need to cover this function by tests
   /* istanbul ignore next */
   updateBill = (bill) => {
+    const apiError = this.document.querySelector('p[data-testid="errorAPI"]')
     if (this.store) {
       this.store
         .bills()
@@ -85,7 +86,11 @@ export default class NewBill {
         .then(() => {
           this.onNavigate(ROUTES_PATH['Bills'])
         })
-        .catch(error => console.error(error))
+        .catch(error => {
+          //console.error(error)  // ligne commentée pour éviter une erreur console normale lors du test
+          apiError.classList.remove("hidden")
+
+        })
     }
   }
 }

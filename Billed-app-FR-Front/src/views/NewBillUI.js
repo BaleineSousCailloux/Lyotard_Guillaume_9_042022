@@ -70,6 +70,7 @@ export default () => {
               </div>
             </div>
           </form>
+          <p class="hidden" data-testid="errorAPI">Erreur</p>
         </div>
       </div>
     </div>
