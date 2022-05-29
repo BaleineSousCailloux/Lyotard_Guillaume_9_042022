@@ -4,17 +4,11 @@
 
 
 import "@testing-library/jest-dom"
-import { screen, fireEvent, getByTestId, getByText, waitFor, waitForElementToBeRemoved } from "@testing-library/dom"
-import userEvent from "@testing-library/user-event"
+import { screen, fireEvent, getByTestId, waitFor } from "@testing-library/dom"
 import mockStore from "../__mocks__/store.js"
-import { setSessionStorage } from "../../setup-jest"
-import Store from "../app/Store.js"
-//import BillsUI from "../views/BillsUI.js"
-import NewBillUI from "../views/NewBillUI.js"
 import NewBill from "../containers/NewBill.js"
 import { ROUTES, ROUTES_PATH } from "../constants/routes.js"
 import { localStorageMock } from "../__mocks__/localStorage.js"
-import { bills } from "../fixtures/bills.js"
 import router from "../app/Router.js"
 
 jest.mock("../app/Store", () => mockStore)
@@ -46,7 +40,6 @@ describe("Given I am connected as an employee", () => {
           window.localStorage.setItem('user', JSON.stringify({
             type: 'Employee'
           }))
-          //document.body.innerHTML = NewBillUI()
           const newBill = new NewBill({
             document, onNavigate, store: mockStore, localStorage: localStorageMock
           })
@@ -64,12 +57,8 @@ describe("Given I am connected as an employee", () => {
           })
           expect(screen.getByText("Envoyer une note de frais")).toBeTruthy()
           expect(handleChangeFile).toBeCalled()
-          //expect(inputFile.files[0].name).toBe("document.txt")
-          //await waitFor(() => screen.getByText("Ce format de fichier n'est pas accepté"))
           await waitFor(() => getByTestId(document.body, "message"))
           expect(getByTestId(document.body, "message").classList).not.toContain("hidden")
-          //expect(screen.getByText("Ce format de fichier n'est pas accepté")).toBeTruthy()
-
         })
       })
       describe("When I choose a good format of file ", () => {
@@ -81,13 +70,11 @@ describe("Given I am connected as an employee", () => {
           window.localStorage.setItem('user', JSON.stringify({
             type: 'Employee'
           }))
-          //document.body.innerHTML = NewBillUI()
           const newBill = new NewBill({
             document, onNavigate, store: mockStore, localeStorage: localStorageMock
           })
           const handleChangeFile = jest.fn(newBill.handleChangeFile)
           const inputFile = screen.getByTestId("file")
-          //inputFile.value = ""
           inputFile.addEventListener("change", handleChangeFile)
           fireEvent.change(inputFile, {
             target: {
@@ -141,11 +128,7 @@ describe("When I am on NewBill Page and submit the form", () => {
       const form = screen.getByTestId("form-new-bill")
       form.addEventListener("submit", handleSubmit)
       fireEvent.submit(form)
-      //await new Promise(resolve => setTimeout(resolve, 1000)) /// Si nous attendons la résolution d'une promesse quelconque
       expect(mockStore.bills).toHaveBeenCalled()
-      /*setTimeout(() => {
-          expect(mockStore.bills().update).toBeCalled()
-      }, 1000)*/
     })
   })
   describe("When API fail", () => {
@@ -165,7 +148,6 @@ describe("When I am on NewBill Page and submit the form", () => {
       const form = screen.getByTestId("form-new-bill")
       form.addEventListener("submit", handleSubmit)
       fireEvent.submit(form)
-
       setTimeout(() => {
         expect(getByTestId(document.body, "error").classList).not.toContain("hidden")
       }, 1000)
@@ -173,3 +155,5 @@ describe("When I am on NewBill Page and submit the form", () => {
   })
 })
 
+//await new Promise(resolve => setTimeout(resolve, 1000))
+/// Si nous attendons la résolution d'une promesse quelconque
